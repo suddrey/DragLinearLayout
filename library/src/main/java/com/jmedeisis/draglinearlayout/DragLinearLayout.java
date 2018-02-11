@@ -46,7 +46,7 @@ public class DragLinearLayout extends LinearLayout {
     private static final float NOMINAL_DISTANCE = 20;
     private final float nominalDistanceScaled;
 
-    static boolean canDrag = false
+    static boolean canDrag = false;
 
     /**
      * Use with {@link com.jmedeisis.draglinearlayout.DragLinearLayout#setOnViewSwapListener(com.jmedeisis.draglinearlayout.DragLinearLayout.OnViewSwapListener)}
@@ -386,7 +386,7 @@ public class DragLinearLayout extends LinearLayout {
 
         draggedItem.onDragStart();
         requestDisallowInterceptTouchEvent(true);
-        canDrag = false
+        canDrag = false;
     }
 
     /**
@@ -730,7 +730,7 @@ public class DragLinearLayout extends LinearLayout {
     private void onTouchEnd() {
         downY = -1;
         activePointerId = INVALID_POINTER_ID;
-        canDrag = false
+        canDrag = false;
     }
 
     private class DragHandleOnTouchListener implements OnTouchListener {
