@@ -46,6 +46,8 @@ public class DragLinearLayout extends LinearLayout {
     private static final float NOMINAL_DISTANCE = 20;
     private final float nominalDistanceScaled;
 
+    static boolean canDrag = false
+
     /**
      * Use with {@link com.jmedeisis.draglinearlayout.DragLinearLayout#setOnViewSwapListener(com.jmedeisis.draglinearlayout.DragLinearLayout.OnViewSwapListener)}
      * to listen for draggable view swaps.
@@ -269,9 +271,16 @@ public class DragLinearLayout extends LinearLayout {
             throw new IllegalArgumentException(
                 "Draggable children and their drag handles must not be null.");
         }
-        
+
         if (this == child.getParent()) {
             dragHandle.setOnTouchListener(new DragHandleOnTouchListener(child));
+            dragHandle.setOnLongClickListener(new OnLongClickListener() {
+              @Override
+              public boolean onLongClick(View view) {
+                canDrag = true;
+                return false;
+              }
+            });
             draggableChildren.put(indexOfChild(child), new DraggableChild());
         } else {
             Log.e(LOG_TAG, child + " is not a child, cannot make draggable.");
@@ -377,6 +386,7 @@ public class DragLinearLayout extends LinearLayout {
 
         draggedItem.onDragStart();
         requestDisallowInterceptTouchEvent(true);
+        canDrag = false
     }
 
     /**
@@ -647,8 +657,11 @@ public class DragLinearLayout extends LinearLayout {
                 final float y = MotionEventCompat.getY(event, pointerIndex);
                 final float dy = y - downY;
                 if (Math.abs(dy) > slop) {
+                  if (canDrag) {
                     startDrag();
                     return true;
+                  }
+                  //return true;
                 }
                 return false;
             }
@@ -676,8 +689,10 @@ public class DragLinearLayout extends LinearLayout {
         switch (MotionEventCompat.getActionMasked(event)) {
             case MotionEvent.ACTION_DOWN: {
                 if (!draggedItem.detecting || draggedItem.settling()) return false;
-                startDrag();
-                return true;
+                if (canDrag) {
+                  startDrag();
+                  return true;
+                }
             }
             case MotionEvent.ACTION_MOVE: {
                 if (!draggedItem.dragging) break;
@@ -715,6 +730,7 @@ public class DragLinearLayout extends LinearLayout {
     private void onTouchEnd() {
         downY = -1;
         activePointerId = INVALID_POINTER_ID;
+        canDrag = false
     }
 
     private class DragHandleOnTouchListener implements OnTouchListener {
